@@ -1,49 +1,57 @@
 # Arquitectura inicial del sistema
 
-## Descripción
-
-Se propone una aplicación web para gestionar la información escalafonaria del personal municipal. La solución tendrá un frontend web y un backend organizado como monolito modular con Clean Architecture.
-
-## Componentes principales
-
-- **Interfaz web:** React y TypeScript.
-- **Balanceador de carga:** AWS Application Load Balancer.
-- **API REST:** ASP.NET Core con .NET 8.
-- **Backend:** capas API, Application, Domain e Infrastructure.
-- **Persistencia:** PostgreSQL.
-- **Caché:** Redis.
-- **Ejecución de servicios:** Docker y Docker Compose.
-
-## Diagrama de arquitectura inicial
+## Diagrama de arquitectura
 
 ```mermaid
-flowchart TB
-    USERS["Usuarios<br/>Administrador general<br/>Administrador de escalafón<br/>Trabajador municipal"]
-    WEB["Interfaz web<br/>React + TypeScript"]
-    ALB["AWS Application<br/>Load Balancer"]
-    API["API REST<br/>ASP.NET Core / .NET 8"]
-
-    subgraph BACKEND["Backend: monolito modular con Clean Architecture"]
-        APP["Application<br/>Casos de uso"]
-        DOMAIN["Domain<br/>Entidades y reglas de negocio"]
-        INFRA["Infrastructure<br/>Persistencia y caché"]
-        API --> APP
-        APP --> DOMAIN
-        INFRA -. "implementa interfaces" .-> APP
+flowchart TD
+    subgraph ACT["ACTORES"]
+        direction LR
+        AG["Administrador general"] ~~~ AE["Administrador de escalafón"] ~~~ TR["Trabajador municipal"]
     end
 
-    PG["PostgreSQL"]
-    REDIS["Redis"]
+    subgraph PRES["PRESENTACIÓN"]
+        WEB["Aplicación web<br/>React + TypeScript"]
+    end
 
-    USERS --> WEB
-    WEB --> ALB
-    ALB --> API
-    INFRA --> PG
-    INFRA --> REDIS
+    LB["AWS Application Load Balancer"]
+    API["API REST<br/>ASP.NET Core / .NET 8"]
+
+    subgraph NEG["LÓGICA DE NEGOCIO"]
+        direction LR
+        US["Usuarios y roles"] ~~~ ESC["Escalafón"] ~~~ PLA["Plazas y áreas"] ~~~ CAP["Capacitaciones"] ~~~ REP["Reportes y alertas"]
+    end
+
+    subgraph DAT["DATOS"]
+        direction LR
+        PG["PostgreSQL"] ~~~ RED["Redis<br/>Caché"]
+    end
+
+    subgraph EXT["INTEGRACIONES FUTURAS"]
+        OTROS["Otros módulos institucionales<br/>(por definir)"]
+    end
+
+    ACT --> PRES
+    PRES --> LB
+    LB --> API
+    API --> NEG
+    NEG --> DAT
+    API -. "cuando se definan" .-> OTROS
+
+    classDef dark fill:#222,stroke:#fff,color:#fff
+    class AG,AE,TR,WEB,LB,API,US,ESC,PLA,CAP,REP,PG,RED,OTROS dark
+    style ACT fill:#222,stroke:#fff,color:#fff
+    style PRES fill:#222,stroke:#fff,color:#fff
+    style NEG fill:#222,stroke:#fff,color:#fff
+    style DAT fill:#222,stroke:#fff,color:#fff
+    style EXT fill:#222,stroke:#fff,color:#fff
 ```
 
-## Flujo general
+## Descripción
 
-Los usuarios acceden al sistema desde la interfaz web. Esta se comunica con la API REST a través del balanceador de carga. La API coordina los casos de uso de Application, que aplican las reglas de Domain. Infrastructure conecta el backend con PostgreSQL y Redis.
+La arquitectura inicial organiza el sistema en presentación, lógica de negocio y datos. La interfaz web se comunica con el backend mediante una API REST. El backend se desarrollará con ASP.NET Core y .NET 8, como un monolito modular organizado con Clean Architecture.
 
-La arquitectura inicial se enfoca en el sistema escalafonario y permitirá incorporar otros módulos gradualmente.
+- **Presentación:** permite que los usuarios interactúen con el sistema desde una aplicación web.
+- **Lógica de negocio:** reúne los módulos de usuarios y roles, escalafón, plazas y áreas, capacitaciones, reportes y alertas.
+- **Datos:** PostgreSQL almacena la información y Redis se considera para las funciones de caché.
+- **Balanceo:** AWS Application Load Balancer distribuye las solicitudes hacia el backend.
+- **Integraciones futuras:** se incorporarán gradualmente cuando se definan los módulos institucionales correspondientes.
