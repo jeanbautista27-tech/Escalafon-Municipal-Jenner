@@ -1,0 +1,12 @@
+# Drivers arquitectónicos
+
+| ID | Driver arquitectónico | Origen | ¿Por qué influye en la arquitectura? |
+|---|---|---|---|
+| DA01 | El sistema debe considerar el crecimiento previsto de usuarios y atender al menos a 1000 usuarios. | AC03 - Escalabilidad; RC09 - Capacidad prevista; RC10 - Balanceador de carga | Influye en la estrategia de despliegue y en la posibilidad de distribuir las solicitudes mediante un balanceador de carga. |
+| DA02 | Las consultas de fichas, búsquedas y reportes deben responder en tiempos adecuados para el volumen previsto. | AC01 - Rendimiento | Influye en el diseño de la API, el procesamiento de consultas y el uso de PostgreSQL y Redis. |
+| DA03 | La información personal y laboral debe estar protegida, y el acceso debe respetar los permisos de cada rol. | AC04 - Seguridad | Influye en la autenticación, la autorización y la protección de la información almacenada. |
+| DA04 | La comunicación entre el frontend y el backend debe realizarse mediante una API REST. | RC03 - API REST; RC04 - Frontend | Define la separación entre la interfaz web y los servicios del backend, así como el contrato de comunicación entre ambos. |
+| DA05 | El backend debe mantener una organización modular en las capas API, Application, Domain e Infrastructure. | AC05 - Mantenibilidad; RC05 - Backend; RC07 - Organización arquitectónica | Influye en la distribución de responsabilidades y facilita mantener y ampliar el sistema. |
+| DA06 | Los datos deben almacenarse en PostgreSQL y las funciones de caché previstas deben utilizar Redis. | RC06 - Base de datos y caché | Define las tecnologías y responsabilidades de persistencia y caché dentro de la arquitectura. |
+| DA07 | El sistema debe mantenerse disponible para las actividades administrativas y desplegarse con contenedores, considerando AWS Application Load Balancer. | AC02 - Disponibilidad; RC08 - Contenedores; RC10 - Balanceador de carga | Influye en la organización del despliegue, la supervisión de los servicios y la distribución del tráfico. |
+| DA08 | La primera versión debe enfocarse en el escalafón y permitir incorporar otros módulos de manera gradual. | AC03 - Escalabilidad; RC11 - Alcance e integraciones | Influye en la modularidad del sistema y en cómo se delimitan sus componentes y futuras integraciones. |
