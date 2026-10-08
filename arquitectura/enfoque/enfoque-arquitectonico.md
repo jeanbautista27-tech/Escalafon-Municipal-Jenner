@@ -1,6 +1,3 @@
-mkdir -p arquitectura/enfoque
-
-cat > arquitectura/enfoque/enfoque-arquitectonico.md <<'EOF'
 # Enfoque arquitectónico
 
 ## 1. Descripción
