@@ -2,261 +2,404 @@
 
 > **Proyecto:** Sistema de Gestión Escalafonaria del Personal Municipal  
 > **Backend:** ASP.NET Core .NET 8 + C#  
-> **Enfoque:** Clean Architecture dentro de un monolito modular  
-> **Módulo de referencia:** M02 – Gestión de Trabajadores y Legajos
+> **Módulo de referencia:** M02 – Gestión de Trabajadores y Legajos  
+> **Enfoque arquitectónico:** Clean Architecture dentro de un monolito modular  
+> **Nivel C4:** 4 – Código · **Versión:** 1.0
 
 ---
 
 ## 1. Propósito
 
-Este documento describe cómo se organiza internamente el código del sistema y cómo los módulos funcionales se distribuyen entre las capas **API, Application, Domain e Infrastructure**.
+Este documento describe **cómo se organiza el código dentro de un módulo del backend**. Tiene tres objetivos:
 
-El objetivo es que:
+- que los módulos mantengan una estructura interna uniforme;
+- que las reglas del negocio permanezcan aisladas de la tecnología;
+- que cualquier integrante del equipo identifique dónde se ubica cada responsabilidad y de qué puede depender.
 
-- las reglas del negocio permanezcan separadas de los detalles técnicos;
-- los módulos mantengan responsabilidades claras;
-- las dependencias apunten hacia el núcleo del sistema;
-- las funcionalidades puedan evolucionar sin acoplarse directamente a PostgreSQL, Redis o servicios externos.
+El sistema se organiza en los módulos funcionales M01–M10, pero en este documento se utiliza como referencia **M02 – Gestión de Trabajadores y Legajos**, por contener reglas centrales como apertura de legajo, consulta de trabajadores, actualización de información oficial y conservación del historial. fileciteturn281file3
 
-## 2. Módulos funcionales
+## 2. Estructura de carpetas
 
-El sistema se organiza en diez módulos funcionales:
-
-| Código | Módulo |
-|---|---|
-| M01 | Administración y Seguridad |
-| M02 | Gestión de Trabajadores y Legajos |
-| M03 | Mi Legajo – Portal del Trabajador |
-| M04 | Gestión Laboral e Historial |
-| M05 | Gestión de Documentos Sustentatorios |
-| M06 | Solicitudes y Validación |
-| M07 | Organización y Listas de Referencia |
-| M08 | Alertas |
-| M09 | Reportes y Dashboard |
-| M10 | Importación e Integraciones |
-
-Los módulos no se despliegan como servicios independientes. Todos forman parte del mismo **monolito modular** y utilizan las capas arquitectónicas comunes. fileciteturn281file1L74-L108
-
-## 3. Organización general del backend
+La solución conserva los cuatro proyectos principales definidos en la infraestructura base:
 
 ```text
 backend/
-├── src/
-│   ├── GestionEscalafonaria.Api/
-│   │   ├── Controllers/
-│   │   ├── Middlewares/
-│   │   ├── Filters/
-│   │   ├── Extensions/
-│   │   └── Configuration/
-│   │
-│   ├── GestionEscalafonaria.Application/
-│   │   ├── DTOs/
-│   │   ├── Interfaces/
-│   │   ├── Services/
-│   │   ├── Validators/
-│   │   └── Mappings/
-│   │
-│   ├── GestionEscalafonaria.Domain/
-│   │   ├── Entities/
-│   │   ├── ValueObjects/
-│   │   ├── Enums/
-│   │   ├── Interfaces/
-│   │   └── Exceptions/
-│   │
-│   └── GestionEscalafonaria.Infrastructure/
-│       ├── Persistence/
-│       ├── Repositories/
-│       ├── Cache/
-│       ├── Storage/
-│       ├── ExternalServices/
-│       └── Configurations/
-│
-└── tests/
-    └── GestionEscalafonaria.Tests/
-        ├── Unit/
-        └── Integration/
+└── src/
+    ├── GestionEscalafonaria.Api/
+    │   ├── Controllers/
+    │   │   └── LegajosController.cs
+    │   ├── Middlewares/
+    │   ├── Filters/
+    │   ├── Extensions/
+    │   └── Configuration/
+    │
+    ├── GestionEscalafonaria.Application/
+    │   ├── DTOs/
+    │   │   └── Legajos/
+    │   │       ├── AperturarLegajoRequest.cs
+    │   │       └── AperturarLegajoResponse.cs
+    │   ├── Interfaces/
+    │   │   ├── ITrabajadorRepository.cs
+    │   │   └── ILegajoRepository.cs
+    │   ├── Services/
+    │   │   └── Legajos/
+    │   │       └── AperturarLegajoUseCase.cs
+    │   ├── Validators/
+    │   │   └── AperturarLegajoRequestValidator.cs
+    │   └── Mappings/
+    │
+    ├── GestionEscalafonaria.Domain/
+    │   ├── Entities/
+    │   │   ├── Trabajador.cs
+    │   │   └── Legajo.cs
+    │   ├── ValueObjects/
+    │   │   └── Dni.cs
+    │   ├── Enums/
+    │   │   └── EstadoLegajo.cs
+    │   ├── Interfaces/
+    │   └── Exceptions/
+    │
+    └── GestionEscalafonaria.Infrastructure/
+        ├── Persistence/
+        │   └── GestionEscalafonariaDbContext.cs
+        ├── Repositories/
+        │   ├── TrabajadorRepository.cs
+        │   └── LegajoRepository.cs
+        ├── Cache/
+        ├── Storage/
+        ├── ExternalServices/
+        └── Configurations/
 ```
 
-La infraestructura base establece las siguientes dependencias:
+La infraestructura aprobada establece las dependencias **Api → Application + Infrastructure**, **Application → Domain**, **Infrastructure → Application + Domain** y **Domain sin dependencias externas**. fileciteturn281file0
 
-- **Api → Application + Infrastructure**
-- **Application → Domain**
-- **Infrastructure → Application + Domain**
-- **Domain → ninguna capa externa**
-
-Esta organización corresponde a la estructura técnica definida para la solución. fileciteturn281file0
-
-## 4. Módulo de referencia: Gestión de Trabajadores y Legajos
-
-El módulo M02 se utiliza como referencia porque concentra reglas centrales del sistema, como la apertura del legajo, consulta de trabajadores, actualización de información oficial y conservación del historial.
-
-### 4.1 Domain
-
-Contiene las entidades, objetos de valor y reglas del negocio.
-
-**Elementos representativos:**
-
-- `Trabajador`
-- `Legajo`
-- `Dni`
-- `EstadoLegajo`
-- excepciones y reglas de dominio
-
-Responsabilidades principales:
-
-- representar al trabajador municipal;
-- mantener la identidad del legajo;
-- controlar estados ACTIVO/PASIVO;
-- preservar reglas de consistencia e historial;
-- impedir que las reglas centrales dependan de tecnologías externas.
-
-### 4.2 Application
-
-Coordina los casos de uso del módulo.
-
-**Casos de uso representativos:**
-
-- `AperturarLegajoUseCase`
-- búsqueda y consulta de trabajadores;
-- actualización de información oficial;
-- reactivación o cambio de estado del legajo.
-
-También contiene:
-
-- DTO de entrada y salida;
-- validadores;
-- interfaces de repositorios;
-- interfaces para servicios requeridos por los casos de uso.
-
-El diseño aprobado define explícitamente los casos de uso por módulo y los contratos necesarios para infraestructura. fileciteturn281file1L94-L108
-
-### 4.3 Infrastructure
-
-Implementa los contratos definidos por las capas internas.
-
-**Elementos representativos:**
-
-- repositorio de trabajadores;
-- repositorio de legajos;
-- configuraciones de Entity Framework Core;
-- `GestionEscalafonariaDbContext`;
-- acceso a PostgreSQL;
-- servicios técnicos que sean necesarios.
-
-Infrastructure conoce las tecnologías concretas, mientras Application y Domain trabajan con abstracciones.
-
-### 4.4 API
-
-Expone las operaciones del módulo mediante HTTP.
-
-**Responsabilidades:**
-
-- recibir las solicitudes;
-- aplicar autorización;
-- validar la entrada;
-- invocar el caso de uso correspondiente;
-- devolver una respuesta HTTP apropiada;
-- ejecutar middleware de auditoría y manejo de errores.
-
-La API se organiza mediante controladores por módulo, políticas de autorización, filtros y middlewares. fileciteturn281file1L111-L116
-
-## 5. Relación interna entre capas
-
-```mermaid
-flowchart LR
-    UI["Aplicación Web<br/>React + TypeScript"]
-
-    subgraph API["GestionEscalafonaria.Api"]
-        C["LegajosController<br/>Endpoints"]
-    end
-
-    subgraph APP["GestionEscalafonaria.Application"]
-        UC["AperturarLegajoUseCase"]
-        VAL["Validator"]
-        PORT1["ITrabajadorRepository"]
-        PORT2["ILegajoRepository"]
-    end
-
-    subgraph DOM["GestionEscalafonaria.Domain"]
-        T["Trabajador"]
-        L["Legajo"]
-        DNI["Dni"]
-        EST["EstadoLegajo"]
-    end
-
-    subgraph INFRA["GestionEscalafonaria.Infrastructure"]
-        TR["TrabajadorRepository"]
-        LR["LegajoRepository"]
-        EF["Entity Framework Core"]
-    end
-
-    DB[("PostgreSQL")]
-
-    UI -->|"HTTPS / JSON"| C
-    C -->|"invoca"| UC
-    UC --> VAL
-    UC --> T
-    UC --> L
-    T --> DNI
-    L --> EST
-
-    UC -.-> PORT1
-    UC -.-> PORT2
-
-    TR -.->|"implementa"| PORT1
-    LR -.->|"implementa"| PORT2
-
-    TR --> EF
-    LR --> EF
-    EF --> DB
-```
-
-## 6. Regla de dependencia
-
-| Capa | Responsabilidad | Puede depender de | No debe depender directamente de |
+| Archivo / elemento | Capa | Responsabilidad | Depende de |
 |---|---|---|---|
-| **Domain** | Entidades y reglas del negocio | Elementos del propio dominio | API, Infrastructure, EF Core, PostgreSQL, Redis |
-| **Application** | Casos de uso y contratos | Domain | API e implementaciones concretas de Infrastructure |
-| **Infrastructure** | Persistencia e integraciones | Application y Domain | Presentación web |
-| **API** | Exposición HTTP y composición | Application e Infrastructure | Reglas de negocio implementadas directamente en controladores |
+| `Trabajador.cs` | Dominio | Representar al trabajador y proteger sus reglas principales. | Solo dominio |
+| `Legajo.cs` | Dominio | Representar el expediente escalafonario y su estado ACTIVO/PASIVO. | Solo dominio |
+| `Dni.cs` | Dominio | Representar y validar el DNI como objeto de valor. | Nada externo |
+| `EstadoLegajo.cs` | Dominio | Definir los estados válidos del legajo. | Nada externo |
+| `ITrabajadorRepository.cs` | Aplicación | Declarar las operaciones de persistencia requeridas sobre trabajadores. | Dominio |
+| `ILegajoRepository.cs` | Aplicación | Declarar las operaciones de persistencia requeridas sobre legajos. | Dominio |
+| `AperturarLegajoUseCase.cs` | Aplicación | Coordinar la validación y creación de Trabajador + Legajo. | Dominio + contratos |
+| `AperturarLegajoRequestValidator.cs` | Aplicación | Validar formato y unicidad necesaria antes del caso de uso. | Contratos de aplicación |
+| `TrabajadorRepository.cs` | Infraestructura | Implementar persistencia de trabajadores con EF Core. | Application + Domain + EF Core |
+| `LegajoRepository.cs` | Infraestructura | Implementar persistencia de legajos con EF Core. | Application + Domain + EF Core |
+| `LegajosController.cs` | API | Traducir HTTP a una llamada del caso de uso y devolver la respuesta. | Application |
+| `Program.cs` | Composición | Registrar implementaciones concretas mediante Dependency Injection. | Todas las capas necesarias |
 
-La regla principal es que el **núcleo del negocio no debe conocer los detalles tecnológicos**.
+---
 
-## 7. Ejemplo de flujo: apertura de legajo
+## 3. Capas del módulo y regla de dependencia
 
-```mermaid
-sequenceDiagram
-    actor RE as Responsable de Escalafón
-    participant API as API REST
-    participant UC as AperturarLegajoUseCase
-    participant TR as ITrabajadorRepository
-    participant LR as ILegajoRepository
-    participant DB as PostgreSQL
+![Diagrama de paquetes del módulo Gestión de Trabajadores y Legajos](../../imagen/paquetes-m02-trabajadores-legajos.svg)
 
-    RE->>API: Solicita aperturar legajo
-    API->>UC: Ejecutar(request)
-    UC->>TR: Verificar trabajador / DNI
-    TR->>DB: Consultar
-    DB-->>TR: Resultado
-    TR-->>UC: Información existente
+**Regla de dependencia:** el código debe mantener las reglas del negocio independientes de ASP.NET Core, Entity Framework Core, PostgreSQL, Redis y servicios externos.
 
-    UC->>UC: Aplicar reglas de negocio
-    UC->>TR: Guardar trabajador
-    UC->>LR: Guardar legajo
-    TR->>DB: INSERT / UPDATE
-    LR->>DB: INSERT
-    UC-->>API: Resultado exitoso
-    API-->>RE: Legajo aperturado
+| Capa | Contiene | Responsabilidad | Puede depender de | **No** debe depender directamente de |
+|---|---|---|---|---|
+| **Domain** | Entidades, objetos de valor, enums, excepciones | Reglas e invariantes del negocio escalafonario | Elementos del propio dominio | API, Infrastructure, EF Core, PostgreSQL, Redis |
+| **Application** | Casos de uso, DTO, contratos, validadores, mappings | Orquestar cada operación del sistema | Domain | Implementaciones concretas de Infrastructure |
+| **Infrastructure** | Repositorios, DbContext, caché, storage, adaptadores externos | Implementar contratos utilizando tecnologías concretas | Application, Domain y librerías técnicas | Presentación web |
+| **API** | Controllers, middleware, filtros, políticas | Traducir solicitudes HTTP y ejecutar casos de uso | Application e Infrastructure para composición | Reglas de negocio embebidas en controladores |
+| **Composición** | `Program.cs` y configuración DI | Elegir implementaciones concretas y registrarlas | Todas las capas necesarias | — |
+
+> **Cómo comprobarlo en el código:** si una entidad de `GestionEscalafonaria.Domain` importa EF Core, Npgsql, ASP.NET Core, Redis o una clase concreta de Infrastructure, la regla de dependencia se está rompiendo.
+
+---
+
+## 4. Diagrama de clases
+
+![Diagrama de clases del módulo Gestión de Trabajadores y Legajos](../../imagen/clases-m02-trabajadores-legajos.svg)
+
+El diagrama representa las clases principales relacionadas con el caso de uso **Aperturar Legajo**. El diseño aprobado establece que un trabajador tiene un único legajo y que el legajo conserva su estado e historial. Personal_Inversiones no se modela como un booleano permanente del trabajador, sino como asociación histórica cuando corresponda. fileciteturn281file3
+
+### 4.1 Notación UML utilizada
+
+| Símbolo | Significado | Ejemplo en el diagrama |
+|---|---|---|
+| Línea continua con flecha | Asociación o uso directo entre clases | `LegajosController → AperturarLegajoUseCase` |
+| Línea discontinua | Dependencia temporal o creación | `AperturarLegajoUseCase → Trabajador` |
+| Línea discontinua hacia interfaz | Realización / implementación de contrato | `TrabajadorRepository → ITrabajadorRepository` |
+| Relación 1:1 | Asociación única entre entidades | `Trabajador ↔ Legajo` |
+| «interface» | Contrato sin implementación concreta | `ITrabajadorRepository`, `ILegajoRepository` |
+| «value object» | Objeto definido por su valor | `Dni` |
+| «enumeration» | Conjunto cerrado de valores | `EstadoLegajo` |
+
+---
+
+## 5. Flujo de ejecución: Aperturar legajo
+
+![Diagrama de secuencia de apertura de legajo](../../imagen/secuencia-aperturar-legajo.svg)
+
+El flujo de apertura valida el DNI, evita que exista un segundo legajo para el mismo trabajador y revisa si el DNI aparece como locador. La existencia como locador se considera una advertencia informativa y no bloquea la creación del trabajador con legajo. fileciteturn281file3
+
+| Paso | Origen → destino | Acción | Capa |
+|---|---|---|---|
+| 1 | Responsable de Escalafón → `LegajosController` | Solicita aperturar un legajo enviando el DNI. | Presentación / API |
+| 2 | `LegajosController` → Validator | Valida formato del DNI y reglas de entrada. | API → Application |
+| 3 | `LegajosController` → `AperturarLegajoUseCase` | Ejecuta el caso de uso. | API → Application |
+| 4 | Caso de uso → `ITrabajadorRepository` | Verifica si ya existe un trabajador con legajo para el DNI. | Application → contrato |
+| 5 | Repositorio → PostgreSQL | Consulta la información existente. | Infrastructure → datos |
+| 6 | Caso de uso → repositorio de locadores | Verifica si el DNI existe como locador; solo genera advertencia. | Application → contrato |
+| 7 | Caso de uso → `ILegajoRepository` | Obtiene o genera el código de legajo correspondiente. | Application → contrato |
+| 8 | Caso de uso → `ITrabajadorRepository` | Registra el trabajador. | Application → contrato |
+| 9 | Caso de uso → `ILegajoRepository` | Registra el legajo asociado. | Application → contrato |
+| 10 | Infraestructura → PostgreSQL | Persiste la operación conservando consistencia. | Infrastructure → datos |
+| 11 | Caso de uso → Controller | Devuelve identificadores y código del legajo. | Application → API |
+| 12 | Controller → Responsable | Responde con creación exitosa. | API |
+
+---
+
+## 6. Código de referencia
+
+Los siguientes fragmentos muestran **cómo se aplicará la separación por capas**. Son código de referencia del diseño y pueden ajustarse durante la implementación sin alterar las reglas arquitectónicas.
+
+### 6.1 Dominio · entidad y objeto de valor
+
+```csharp
+// Domain/ValueObjects/Dni.cs
+public sealed record Dni
+{
+    public string Valor { get; }
+
+    private Dni(string valor) => Valor = valor;
+
+    public static Dni Crear(string valor)
+    {
+        if (string.IsNullOrWhiteSpace(valor) ||
+            valor.Length != 8 ||
+            !valor.All(char.IsDigit))
+        {
+            throw new DomainException("El DNI debe contener exactamente 8 dígitos.");
+        }
+
+        return new Dni(valor);
+    }
+}
 ```
 
-El flujo mantiene la separación de responsabilidades: el controlador no guarda datos directamente, el caso de uso coordina la operación y los repositorios abstraen la persistencia. El diseño técnico aprobado utiliza este mismo esquema para la apertura de legajos. fileciteturn281file1L3696-L3710
+```csharp
+// Domain/Entities/Trabajador.cs
+public class Trabajador
+{
+    public Guid Id { get; private set; }
+    public Dni Dni { get; private set; }
 
-## 8. Organización del frontend
+    private Trabajador() { }
 
-El frontend se estructura por funcionalidades utilizando `features/`. Entre las áreas previstas se encuentran autenticación, trabajadores, legajos, gestión laboral, solicitudes, reportes y otras funcionalidades del sistema.
+    private Trabajador(Guid id, Dni dni)
+    {
+        Id = id;
+        Dni = dni;
+    }
 
-Cada feature puede contener sus propios componentes, servicios, hooks, páginas y estado cuando corresponda. El diseño aprobado utiliza esta organización por funcionalidades para el frontend React. fileciteturn281file1L2542-L2556
+    public static Trabajador Crear(Dni dni)
+        => new(Guid.NewGuid(), dni);
+}
+```
 
-## 9. Resultado del diseño interno
+```csharp
+// Domain/Entities/Legajo.cs
+public class Legajo
+{
+    public Guid Id { get; private set; }
+    public Guid TrabajadorId { get; private set; }
+    public string Codigo { get; private set; }
+    public EstadoLegajo Estado { get; private set; }
 
-La organización propuesta permite que cada funcionalidad tenga una ubicación clara y respete Clean Architecture. La incorporación de una nueva regla funcional debe afectar principalmente Domain y Application, mientras que un cambio de tecnología de persistencia o integración debe concentrarse principalmente en Infrastructure.
+    private Legajo() { }
+
+    public static Legajo Crear(Guid trabajadorId, string codigo)
+        => new()
+        {
+            Id = Guid.NewGuid(),
+            TrabajadorId = trabajadorId,
+            Codigo = codigo,
+            Estado = EstadoLegajo.ACTIVO
+        };
+
+    public void PasarAPasivo() => Estado = EstadoLegajo.PASIVO;
+    public void Reactivar() => Estado = EstadoLegajo.ACTIVO;
+}
+```
+
+### 6.2 Aplicación · contratos
+
+```csharp
+// Application/Interfaces/ITrabajadorRepository.cs
+public interface ITrabajadorRepository
+{
+    Task<bool> ExisteTrabajadorConLegajoPorDniAsync(
+        string dni,
+        CancellationToken cancellationToken = default);
+
+    Task AddAsync(
+        Trabajador trabajador,
+        CancellationToken cancellationToken = default);
+}
+```
+
+```csharp
+// Application/Interfaces/ILegajoRepository.cs
+public interface ILegajoRepository
+{
+    Task<string> GenerarCodigoAsync(
+        CancellationToken cancellationToken = default);
+
+    Task AddAsync(
+        Legajo legajo,
+        CancellationToken cancellationToken = default);
+}
+```
+
+### 6.3 Aplicación · caso de uso
+
+El request oficial de apertura contiene únicamente el DNI. Personal_Inversiones se registra después como asociación histórica cuando corresponda. fileciteturn281file3
+
+```csharp
+public sealed class AperturarLegajoRequest
+{
+    public string Dni { get; set; } = string.Empty;
+}
+
+public sealed class AperturarLegajoResponse
+{
+    public Guid TrabajadorId { get; set; }
+    public Guid LegajoId { get; set; }
+    public string CodigoLegajo { get; set; } = string.Empty;
+    public string Dni { get; set; } = string.Empty;
+}
+```
+
+```csharp
+public sealed class AperturarLegajoUseCase
+{
+    private readonly ITrabajadorRepository _trabajadores;
+    private readonly ILegajoRepository _legajos;
+    private readonly ILocadorRepository _locadores;
+
+    public AperturarLegajoUseCase(
+        ITrabajadorRepository trabajadores,
+        ILegajoRepository legajos,
+        ILocadorRepository locadores)
+    {
+        _trabajadores = trabajadores;
+        _legajos = legajos;
+        _locadores = locadores;
+    }
+
+    public async Task<AperturarLegajoResponse> EjecutarAsync(
+        AperturarLegajoRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var dni = Dni.Crear(request.Dni);
+
+        if (await _trabajadores.ExisteTrabajadorConLegajoPorDniAsync(
+            dni.Valor, cancellationToken))
+        {
+            throw new BusinessRuleException(
+                "Ya existe un trabajador con legajo para este DNI.");
+        }
+
+        // Si existe como locador se registra/retorna una advertencia,
+        // pero no se impide la apertura del legajo.
+        _ = await _locadores.ExistePorDniAsync(dni.Valor, cancellationToken);
+
+        var trabajador = Trabajador.Crear(dni);
+        var codigo = await _legajos.GenerarCodigoAsync(cancellationToken);
+        var legajo = Legajo.Crear(trabajador.Id, codigo);
+
+        await _trabajadores.AddAsync(trabajador, cancellationToken);
+        await _legajos.AddAsync(legajo, cancellationToken);
+
+        return new AperturarLegajoResponse
+        {
+            TrabajadorId = trabajador.Id,
+            LegajoId = legajo.Id,
+            CodigoLegajo = legajo.Codigo,
+            Dni = trabajador.Dni.Valor
+        };
+    }
+}
+```
+
+### 6.4 Infraestructura · repositorio
+
+```csharp
+// Infrastructure/Repositories/TrabajadorRepository.cs
+public sealed class TrabajadorRepository : ITrabajadorRepository
+{
+    private readonly GestionEscalafonariaDbContext _db;
+
+    public TrabajadorRepository(GestionEscalafonariaDbContext db)
+        => _db = db;
+
+    public Task<bool> ExisteTrabajadorConLegajoPorDniAsync(
+        string dni,
+        CancellationToken cancellationToken = default)
+    {
+        return _db.Trabajadores
+            .AnyAsync(
+                t => t.Dni == dni && t.Legajo != null,
+                cancellationToken);
+    }
+
+    public async Task AddAsync(
+        Trabajador trabajador,
+        CancellationToken cancellationToken = default)
+    {
+        await _db.Trabajadores.AddAsync(trabajador, cancellationToken);
+    }
+}
+```
+
+> La confirmación de los cambios debe realizarse dentro de la unidad de trabajo/transacción definida para la operación, de modo que Trabajador y Legajo no queden en un estado parcial inconsistente.
+
+### 6.5 Presentación · controlador
+
+```csharp
+// Api/Controllers/LegajosController.cs
+[ApiController]
+[Route("api/legajos")]
+public sealed class LegajosController : ControllerBase
+{
+    private readonly AperturarLegajoUseCase _aperturarLegajo;
+
+    public LegajosController(AperturarLegajoUseCase aperturarLegajo)
+        => _aperturarLegajo = aperturarLegajo;
+
+    [HttpPost("aperturar")]
+    public async Task<IActionResult> Aperturar(
+        [FromBody] AperturarLegajoRequest request,
+        CancellationToken cancellationToken)
+    {
+        var response = await _aperturarLegajo
+            .EjecutarAsync(request, cancellationToken);
+
+        return CreatedAtAction(
+            nameof(Aperturar),
+            new { id = response.LegajoId },
+            response);
+    }
+}
+```
+
+### 6.6 Raíz de composición
+
+```csharp
+// Api/Program.cs
+builder.Services.AddScoped<ITrabajadorRepository, TrabajadorRepository>();
+builder.Services.AddScoped<ILegajoRepository, LegajoRepository>();
+builder.Services.AddScoped<ILocadorRepository, LocadorRepository>();
+
+builder.Services.AddScoped<AperturarLegajoUseCase>();
+```
+
+La inversión de dependencias permite que el caso de uso conozca únicamente interfaces; PostgreSQL y Entity Framework Core permanecen en Infrastructure.
+
+---
+
+## 7. Resultado del diseño interno
+
+El módulo M02 muestra el patrón que deben seguir los demás módulos: **API recibe**, **Application coordina**, **Domain protege las reglas** e **Infrastructure implementa los detalles técnicos**. Esto permite evolucionar la gestión escalafonaria sin trasladar reglas de negocio a controladores, repositorios o frameworks.
