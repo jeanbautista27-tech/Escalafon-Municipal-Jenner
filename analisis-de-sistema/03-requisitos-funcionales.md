@@ -4,14 +4,14 @@
 |---|---|
 | RF01 | El sistema debe permitir que los usuarios inicien sesión con sus credenciales y accedan únicamente a las funcionalidades autorizadas para sus roles. |
 | RF02 | El sistema debe permitir cerrar sesión e invalidar la sesión activa del usuario. |
-| RF03 | El sistema debe permitir al Administrador del Sistema registrar, consultar, actualizar, activar y desactivar cuentas de usuario. |
+| RF03 | El sistema debe permitir al Administrador del Sistema registrar, consultar, actualizar, activar y desactivar cuentas de usuario, asignar o restablecer contraseñas temporales y exigir su cambio obligatorio en el primer ingreso o después de un restablecimiento. |
 | RF04 | El sistema debe permitir al Administrador del Sistema asignar a las cuentas uno o más de los cuatro roles predefinidos: Administrador del Sistema, Responsable de Escalafón, Trabajador y Usuario de Consulta Interna / Gerencia. |
 | RF05 | El sistema debe registrar y permitir consultar la auditoría de las operaciones relevantes realizadas por los usuarios. |
 | RF06 | El sistema debe permitir al Responsable de Escalafón aperturar un legajo para un trabajador a partir de su DNI, evitando la creación de un segundo legajo para el mismo trabajador. |
-| RF07 | El sistema debe permitir al Responsable de Escalafón buscar trabajadores por DNI y otros criterios de identificación disponibles. |
-| RF08 | El sistema debe permitir al Responsable de Escalafón consultar el legajo completo y su historial, de acuerdo con sus permisos. |
-| RF09 | El sistema debe permitir al Responsable de Escalafón registrar y mantener la información personal oficial del trabajador, conservando la trazabilidad de los cambios. |
-| RF10 | El sistema debe permitir al Responsable de Escalafón gestionar las vinculaciones laborales del trabajador y distinguir explícitamente cuál representa su situación laboral actual. |
+| RF07 | El sistema debe permitir al Responsable de Escalafón buscar trabajadores por DNI, nombres y apellidos, y aplicar filtros combinables por unidad orgánica, régimen laboral, condición laboral y estado laboral. |
+| RF08 | El sistema debe permitir al Responsable de Escalafón consultar el legajo completo y su historial, gestionar su estado ACTIVO o PASIVO, reactivarlo cuando corresponda y realizar mantenimiento justificado sobre legajos pasivos sin perder el historial. |
+| RF09 | El sistema debe permitir al Responsable de Escalafón registrar y mantener la información personal oficial del trabajador, conservando la trazabilidad de los cambios; la corrección del DNI debe requerir validación, justificación, documento sustentatorio, historial y auditoría. |
+| RF10 | El sistema debe permitir al Responsable de Escalafón gestionar las vinculaciones laborales del trabajador, distinguir explícitamente cuál representa su situación laboral actual, conservar todas las vinculaciones históricas y registrar su cierre o documentación de liquidación cuando corresponda, sin calcular beneficios laborales. |
 | RF11 | El sistema debe permitir al Responsable de Escalafón registrar contratos primigenios y sus adendas, manteniendo el historial correspondiente. |
 | RF12 | El sistema debe permitir al Responsable de Escalafón registrar asignaciones organizacionales y conservar el historial de asignaciones del trabajador. |
 | RF13 | El sistema debe permitir al Responsable de Escalafón registrar movimientos laborales, incluyendo el tipo de movimiento, unidades de origen y destino, cargos, documento sustentatorio y observaciones cuando corresponda. |
