@@ -1,9 +1,15 @@
 # Atributos de calidad
 
-| ID | Atributo de calidad | Escenario de calidad |
+| IDENTIFICACIÓN | Atributo de calidad | Escenario de calidad |
 |---|---|---|
-| AC01 | Rendimiento | Las consultas de fichas, las búsquedas y la generación de reportes deben responder en tiempos adecuados para el volumen previsto del sistema, considerando el objetivo de atender al menos a 1000 usuarios. |
-| AC02 | Disponibilidad | El sistema debe estar disponible durante las actividades administrativas de la municipalidad para que sus usuarios puedan consultar y gestionar la información escalafonaria. |
-| AC03 | Escalabilidad | El sistema debe permitir el crecimiento del número de usuarios y de registros, así como la incorporación gradual de otros módulos, sin requerir una reestructuración completa. |
-| AC04 | Seguridad | La información personal y laboral debe estar protegida mediante acceso según roles; cada trabajador solo debe poder consultar su propia ficha. |
-| AC05 | Mantenibilidad | La organización modular del sistema debe facilitar correcciones y futuras mejoras sin afectar innecesariamente las demás funciones. |
+| AC01 | Rendimiento | Las consultas de legajos, búsquedas de trabajadores, dashboards y generación de reportes deben responder en tiempos adecuados para el uso operativo municipal y soportar al menos 1000 usuarios registrados, sin asumir que todos estarán conectados de forma concurrente. |
+| AC02 | Disponibilidad | El sistema debe mantenerse disponible durante las actividades administrativas de la municipalidad y continuar permitiendo las operaciones principales aun cuando servicios externos como RENIEC o una validación tributaria se encuentren temporalmente no disponibles. |
+| AC03 | Seguridad | La información personal, laboral y documental debe estar protegida mediante autenticación, autorización y mínimo privilegio. Los permisos deben validarse en el backend; el Trabajador solo puede acceder a su propio legajo y el Usuario de Consulta Interna / Gerencia solo a información agregada autorizada. |
+| AC04 | Integridad y consistencia histórica | Las operaciones que modifican información oficial deben preservar la consistencia entre trabajador, legajo, vinculaciones, contratos, asignaciones, movimientos y documentos, evitando estados parciales inconsistentes y sin destruir información histórica que deba conservarse. |
+| AC05 | Trazabilidad y auditoría | Las operaciones relevantes deben registrar usuario, fecha, hora, acción y entidad afectada. Los historiales y registros de auditoría deben conservarse y no poder ser eliminados por los usuarios funcionales. |
+| AC06 | Escalabilidad y mantenibilidad | La solución debe conservar una arquitectura modular y por capas que permita incorporar nuevos módulos de Recursos Humanos, realizar correcciones y evolucionar funcionalidades sin rediseñar el núcleo escalafonario ni afectar innecesariamente otros módulos. |
+| AC07 | Usabilidad | La aplicación web debe ser responsiva y utilizable en computadoras de escritorio, laptops, tabletas y teléfonos móviles compatibles. Los formularios, menús, filtros, tablas y controles deben adaptarse al tamaño de pantalla y favorecer controles guiados y catálogos configurados cuando corresponda. |
+
+## Nota
+
+Estos atributos de calidad constituyen una síntesis académica de los requisitos no funcionales definidos para el sistema. Las medidas cuantitativas específicas de rendimiento, disponibilidad, respaldo o recuperación se definirán posteriormente cuando exista una validación técnica u operativa que las sustente.
