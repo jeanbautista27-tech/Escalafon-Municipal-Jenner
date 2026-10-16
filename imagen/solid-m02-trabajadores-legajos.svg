@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="720" viewBox="0 0 1600 720">
+<defs>
+<style>
+.t{font-family:Arial,Helvetica,sans-serif;fill:#0f172a}
+.title{font-size:28px;font-weight:700}
+.sub{font-size:15px;fill:#475569}
+.letter{font-size:34px;font-weight:700;fill:#fff}
+.h{font-size:18px;font-weight:700}
+.b{font-size:14px}
+.s{font-size:12px;fill:#475569}
+.card{stroke-width:1.6}
+</style>
+</defs>
+<rect width="1600" height="720" fill="#ffffff"/>
+<text x="55" y="52" class="t title">SOLID · M02 Gestión de Trabajadores y Legajos</text>
+<text x="55" y="80" class="t sub">Aplicación de principios de diseño dentro de Clean Architecture</text>
+
+<!-- S -->
+<rect x="55" y="125" width="285" height="500" rx="16" fill="#eff6ff" stroke="#3b82f6" class="card"/>
+<circle cx="197" cy="185" r="42" fill="#2563eb"/>
+<text x="197" y="197" text-anchor="middle" class="t letter">S</text>
+<text x="197" y="255" text-anchor="middle" class="t h">Responsabilidad única</text>
+<text x="78" y="305" class="t b">LegajosController</text>
+<text x="78" y="328" class="t s">Recibe y responde HTTP</text>
+<text x="78" y="378" class="t b">AperturarLegajoUseCase</text>
+<text x="78" y="401" class="t s">Coordina el caso de uso</text>
+<text x="78" y="451" class="t b">Trabajador / Legajo</text>
+<text x="78" y="474" class="t s">Protegen reglas de dominio</text>
+<text x="78" y="524" class="t b">TrabajadorRepository</text>
+<text x="78" y="547" class="t s">Persiste en PostgreSQL</text>
+
+<!-- O -->
+<rect x="365" y="125" width="285" height="500" rx="16" fill="#f0fdf4" stroke="#22c55e" class="card"/>
+<circle cx="507" cy="185" r="42" fill="#16a34a"/>
+<text x="507" y="197" text-anchor="middle" class="t letter">O</text>
+<text x="507" y="255" text-anchor="middle" class="t h">Abierto / cerrado</text>
+<text x="388" y="310" class="t b">Nueva integración externa</text>
+<text x="388" y="333" class="t s">Se agrega un nuevo adaptador</text>
+<text x="388" y="356" class="t s">sin modificar el caso de uso.</text>
+<rect x="397" y="405" width="220" height="64" rx="8" fill="#dcfce7" stroke="#22c55e"/>
+<text x="507" y="433" text-anchor="middle" class="t b">IValidacionIdentidadService</text>
+<text x="507" y="454" text-anchor="middle" class="t s">contrato estable</text>
+<rect x="397" y="500" width="220" height="64" rx="8" fill="#dcfce7" stroke="#22c55e"/>
+<text x="507" y="528" text-anchor="middle" class="t b">ReniecAdapter</text>
+<text x="507" y="549" text-anchor="middle" class="t s">implementación reemplazable</text>
+
+<!-- L -->
+<rect x="675" y="125" width="285" height="500" rx="16" fill="#fff7ed" stroke="#f59e0b" class="card"/>
+<circle cx="817" cy="185" r="42" fill="#d97706"/>
+<text x="817" y="197" text-anchor="middle" class="t letter">L</text>
+<text x="817" y="255" text-anchor="middle" class="t h">Sustitución de Liskov</text>
+<text x="698" y="310" class="t b">Las implementaciones</text>
+<text x="698" y="333" class="t b">respetan el mismo contrato.</text>
+<rect x="707" y="390" width="220" height="64" rx="8" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="817" y="418" text-anchor="middle" class="t b">ITrabajadorRepository</text>
+<text x="817" y="439" text-anchor="middle" class="t s">contrato</text>
+<rect x="707" y="485" width="220" height="64" rx="8" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="817" y="513" text-anchor="middle" class="t b">TrabajadorRepository</text>
+<text x="817" y="534" text-anchor="middle" class="t s">implementación PostgreSQL</text>
+
+<!-- I -->
+<rect x="985" y="125" width="285" height="500" rx="16" fill="#f5f3ff" stroke="#8b5cf6" class="card"/>
+<circle cx="1127" cy="185" r="42" fill="#7c3aed"/>
+<text x="1127" y="197" text-anchor="middle" class="t letter">I</text>
+<text x="1127" y="255" text-anchor="middle" class="t h">Segregación de interfaces</text>
+<text x="1008" y="310" class="t b">Contratos pequeños y específicos</text>
+<text x="1008" y="333" class="t s">Cada caso de uso depende solo</text>
+<text x="1008" y="356" class="t s">de las operaciones que necesita.</text>
+<text x="1008" y="420" class="t b">ITrabajadorRepository</text>
+<text x="1008" y="452" class="t b">ILegajoRepository</text>
+<text x="1008" y="484" class="t b">IValidacionIdentidadService</text>
+
+<!-- D -->
+<rect x="1295" y="125" width="250" height="500" rx="16" fill="#f8fafc" stroke="#64748b" class="card"/>
+<circle cx="1420" cy="185" r="42" fill="#475569"/>
+<text x="1420" y="197" text-anchor="middle" class="t letter">D</text>
+<text x="1420" y="255" text-anchor="middle" class="t h">Inversión de dependencias</text>
+<text x="1318" y="310" class="t b">Application depende</text>
+<text x="1318" y="333" class="t b">de interfaces.</text>
+<text x="1318" y="385" class="t s">Infrastructure implementa</text>
+<text x="1318" y="408" class="t s">los contratos.</text>
+<text x="1318" y="465" class="t b">Program.cs</text>
+<text x="1318" y="488" class="t s">conecta interfaces con</text>
+<text x="1318" y="511" class="t s">implementaciones concretas.</text>
+
+<text x="800" y="680" text-anchor="middle" class="t sub">Resultado: reglas del negocio desacopladas de ASP.NET Core, EF Core, PostgreSQL e integraciones externas.</text>
+</svg>
