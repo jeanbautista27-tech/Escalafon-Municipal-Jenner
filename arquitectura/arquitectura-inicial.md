@@ -4,54 +4,130 @@
 
 ```mermaid
 flowchart TD
-    subgraph ACT["ACTORES"]
-        direction LR
-        AG["Administrador general"] ~~~ AE["Administrador de escalafón"] ~~~ TR["Trabajador municipal"]
-    end
 
-    subgraph PRES["PRESENTACIÓN"]
-        WEB["Aplicación web<br/>React + TypeScript"]
-    end
+%% =========================
+%% ACTORES
+%% =========================
+subgraph ACTORES["ACTORES"]
+    Admin["Administrador del Sistema"]
+    Responsable["Responsable de Escalafón"]
+    Trabajador["Trabajador municipal"]
+    Consulta["Usuario de Consulta Interna / Gerencia"]
+end
 
-    LB["AWS Application Load Balancer"]
+%% =========================
+%% PRESENTACIÓN
+%% =========================
+subgraph PRESENTACION["PRESENTACIÓN"]
+    Web["Aplicación Web<br/>React + TypeScript"]
     API["API REST<br/>ASP.NET Core / .NET 8"]
+end
 
-    subgraph NEG["LÓGICA DE NEGOCIO"]
-        direction LR
-        US["Usuarios y roles"] ~~~ ESC["Escalafón"] ~~~ PLA["Plazas y áreas"] ~~~ CAP["Capacitaciones"] ~~~ REP["Reportes y alertas"]
-    end
+%% =========================
+%% LÓGICA DE NEGOCIO
+%% =========================
+subgraph NEGOCIO["LÓGICA DE NEGOCIO"]
+    Seguridad["Administración y Seguridad"]
+    Legajos["Trabajadores y Legajos"]
+    Laboral["Gestión Laboral e Historial"]
+    Documentos["Documentos y Solicitudes"]
+    Organizacion["Organización y Catálogos"]
+    Reportes["Alertas, Dashboard y Reportes"]
+    Migracion["Migración e Integraciones"]
+end
 
-    subgraph DAT["DATOS"]
-        direction LR
-        PG["PostgreSQL"] ~~~ RED["Redis<br/>Caché"]
-    end
+%% =========================
+%% DATOS
+%% =========================
+subgraph DATOS["DATOS"]
+    PostgreSQL["PostgreSQL<br/>Fuente de verdad"]
+    Redis["Redis<br/>Caché"]
+end
 
-    subgraph EXT["INTEGRACIONES FUTURAS"]
-        OTROS["Otros módulos institucionales<br/>(por definir)"]
-    end
+%% =========================
+%% SISTEMAS / FUENTES EXTERNAS
+%% =========================
+subgraph EXTERNOS["SISTEMAS Y FUENTES EXTERNAS"]
+    Reniec["RENIEC<br/>Validación de identidad"]
+    Tributaria["Servicio de validación tributaria<br/>cuando esté disponible"]
+    Excel["Archivo Excel<br/>Migración inicial"]
+end
 
-    ACT --> PRES
-    PRES --> LB
-    LB --> API
-    API --> NEG
-    NEG --> DAT
-    API -. "cuando se definan" .-> OTROS
+%% =========================
+%% FLUJO PRINCIPAL
+%% =========================
+ACTORES --> Web
+Web --> API
+API --> NEGOCIO
+NEGOCIO --> PostgreSQL
+NEGOCIO -. "uso opcional de caché" .-> Redis
 
-    classDef dark fill:#222,stroke:#fff,color:#fff
-    class AG,AE,TR,WEB,LB,API,US,ESC,PLA,CAP,REP,PG,RED,OTROS dark
-    style ACT fill:#222,stroke:#fff,color:#fff
-    style PRES fill:#222,stroke:#fff,color:#fff
-    style NEG fill:#222,stroke:#fff,color:#fff
-    style DAT fill:#222,stroke:#fff,color:#fff
-    style EXT fill:#222,stroke:#fff,color:#fff
+%% =========================
+%% INTEGRACIONES
+%% =========================
+Migracion -. "validación" .-> Reniec
+Migracion -. "validación" .-> Tributaria
+Excel --> Migracion
+
+%% =========================
+%% DISTRIBUCIÓN HORIZONTAL
+%% =========================
+Admin ~~~ Responsable
+Responsable ~~~ Trabajador
+Trabajador ~~~ Consulta
+
+Seguridad ~~~ Legajos
+Legajos ~~~ Laboral
+Laboral ~~~ Documentos
+Documentos ~~~ Organizacion
+Organizacion ~~~ Reportes
+Reportes ~~~ Migracion
+
+Reniec ~~~ Tributaria
+Tributaria ~~~ Excel
+
+%% =========================
+%% ESTILOS
+%% =========================
+style ACTORES fill:#222,stroke:#fff,stroke-width:2px,color:#fff
+style PRESENTACION fill:#222,stroke:#fff,stroke-width:2px,color:#fff
+style NEGOCIO fill:#222,stroke:#fff,stroke-width:2px,color:#fff
+style DATOS fill:#222,stroke:#fff,stroke-width:2px,color:#fff
+style EXTERNOS fill:#222,stroke:#fff,stroke-width:2px,color:#fff
+
+style Admin fill:#222,stroke:#fff,color:#fff
+style Responsable fill:#222,stroke:#fff,color:#fff
+style Trabajador fill:#222,stroke:#fff,color:#fff
+style Consulta fill:#222,stroke:#fff,color:#fff
+
+style Web fill:#222,stroke:#fff,color:#fff
+style API fill:#222,stroke:#fff,color:#fff
+
+style Seguridad fill:#222,stroke:#fff,color:#fff
+style Legajos fill:#222,stroke:#fff,color:#fff
+style Laboral fill:#222,stroke:#fff,color:#fff
+style Documentos fill:#222,stroke:#fff,color:#fff
+style Organizacion fill:#222,stroke:#fff,color:#fff
+style Reportes fill:#222,stroke:#fff,color:#fff
+style Migracion fill:#222,stroke:#fff,color:#fff
+
+style PostgreSQL fill:#222,stroke:#fff,color:#fff
+style Redis fill:#222,stroke:#fff,color:#fff
+
+style Reniec fill:#222,stroke:#fff,color:#fff
+style Tributaria fill:#222,stroke:#fff,color:#fff
+style Excel fill:#222,stroke:#fff,color:#fff
 ```
 
 ## Descripción
 
-La arquitectura inicial organiza el sistema en presentación, lógica de negocio y datos. La interfaz web se comunica con el backend mediante una API REST. El backend se desarrollará con ASP.NET Core y .NET 8, como un monolito modular organizado con Clean Architecture.
+La arquitectura inicial del Sistema de Gestión Escalafonaria del Personal Municipal se organiza en presentación, lógica de negocio, datos e integraciones externas.
 
-- **Presentación:** permite que los usuarios interactúen con el sistema desde una aplicación web.
-- **Lógica de negocio:** reúne los módulos de usuarios y roles, escalafón, plazas y áreas, capacitaciones, reportes y alertas.
-- **Datos:** PostgreSQL almacena la información y Redis se considera para las funciones de caché.
-- **Balanceo:** AWS Application Load Balancer distribuye las solicitudes hacia el backend.
-- **Integraciones futuras:** se incorporarán gradualmente cuando se definan los módulos institucionales correspondientes.
+- **Actores:** participan el Administrador del Sistema, Responsable de Escalafón, Trabajador municipal y Usuario de Consulta Interna / Gerencia, cada uno con funciones y restricciones de acceso diferenciadas.
+- **Presentación:** la interacción se realiza mediante una aplicación web desarrollada con React y TypeScript, que consume una API REST implementada con ASP.NET Core sobre .NET 8.
+- **Lógica de negocio:** concentra las funcionalidades principales de administración y seguridad, trabajadores y legajos, gestión laboral e historial, documentos y solicitudes, organización y catálogos, alertas y reportes, además de migración e integraciones.
+- **Datos:** PostgreSQL constituye la fuente de verdad de la información funcional e histórica. Redis se utiliza únicamente como apoyo para caché u optimización cuando sea necesario.
+- **Integraciones externas:** RENIEC y el servicio de validación tributaria se consideran integraciones desacopladas y opcionales. La indisponibilidad de estos servicios no debe bloquear las operaciones principales del sistema.
+- **Migración inicial:** la información existente en archivos Excel puede incorporarse mediante un proceso controlado de validación, previsualización y confirmación antes de persistirla en PostgreSQL.
+
+La solución se implementa como un **monolito modular**, manteniendo la separación de responsabilidades definida por Clean Architecture.
