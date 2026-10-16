@@ -1,28 +1,23 @@
-cat > analisis-de-sistema/07-decisiones-arquitectonicas.md <<'EOF'
 # Decisiones arquitectónicas
 
-Las decisiones arquitectónicas responden a los drivers identificados para el Sistema de Gestión Escalafonaria Municipal y establecen cómo se organizará técnicamente el sistema.
-
-Un ADR (Architecture Decision Record) registra una decisión importante, el driver que la origina, su justificación y el resultado esperado.
+Las decisiones arquitectónicas responden a los drivers identificados para el Sistema de Gestión Escalafonaria del Personal Municipal y definen cómo se organizará técnicamente la solución.
 
 | ID | Decisión arquitectónica | Driver relacionado | Justificación | Resultado |
 |---|---|---|---|---|
-| ADR-001 | Monolito modular | DA05 - Organización modular; DA08 - Alcance e integraciones | Organizar las funcionalidades del escalafón en módulos relacionados, manteniendo una aplicación desplegable. | Módulos de trabajadores, legajos, plazas, capacitaciones, reportes y usuarios. |
-| ADR-002 | Clean Architecture | DA05 - Organización modular | Separar las responsabilidades del backend y las reglas del negocio de los detalles técnicos. | Capas API, Application, Domain e Infrastructure. |
-| ADR-003 | API REST para comunicar frontend y backend | DA04 - API REST y comunicación entre frontend y backend | Definir una forma clara de comunicación entre la interfaz web y los servicios del backend. | El frontend React consume endpoints REST del backend ASP.NET Core mediante solicitudes HTTP y respuestas JSON. |
-| ADR-004 | PostgreSQL para persistencia y Redis para caché | DA02 - Rendimiento; DA06 - Base de datos y caché | Atender consultas frecuentes con tiempos adecuados y separar los datos permanentes de la información temporal en caché. | PostgreSQL almacena la información del sistema y Redis mantiene temporalmente datos seleccionados de consulta frecuente. |
-| ADR-005 | Control de acceso basado en roles | DA03 - Seguridad | Proteger la información personal y laboral y limitar el acceso según las responsabilidades de cada usuario. | Permisos diferenciados para el administrador general, el administrador de escalafón y el trabajador municipal. |
-| ADR-006 | Despliegue en contenedores con balanceo de carga | DA01 - Escalabilidad y capacidad para 1000 usuarios; DA07 - Disponibilidad, contenedores y balanceador | Facilitar el despliegue de los servicios y distribuir el tráfico cuando existan varias instancias de la aplicación. | Servicios desplegados con Docker y Docker Compose; AWS Application Load Balancer considerado para distribuir solicitudes en AWS. |
-| ADR-007 | Incorporación gradual de módulos e integraciones | DA08 - Alcance e integraciones | Enfocar la primera versión en el escalafón municipal y permitir ampliar el sistema posteriormente. | El sistema inicia con funcionalidades de escalafón y podrá incorporar módulos o integraciones institucionales mediante componentes desacoplados. |
+| ADR-001 | Monolito modular | DA03 – Modularidad y mantenibilidad | Permite organizar las funcionalidades escalafonarias en módulos claramente separados dentro de una sola aplicación desplegable, evitando la complejidad innecesaria de microservicios en esta etapa. | El backend se implementará como un monolito modular con módulos funcionales desacoplados y límites de responsabilidad definidos. |
+| ADR-002 | Clean Architecture | DA02 – Integridad y trazabilidad; DA03 – Modularidad y mantenibilidad | Se requiere separar las reglas del negocio de los detalles técnicos para facilitar mantenimiento, pruebas y evolución del sistema. | El backend mantendrá las capas API, Application, Domain e Infrastructure, y el dominio no dependerá de tecnologías externas. |
+| ADR-003 | API REST entre frontend y backend | DA06 – Comunicación cliente-servidor | La aplicación web necesita un contrato claro y desacoplado para comunicarse con los servicios del backend. | El frontend React consumirá endpoints REST del backend ASP.NET Core mediante HTTP/HTTPS y JSON. |
+| ADR-004 | PostgreSQL como fuente de verdad y Redis como apoyo | DA04 – Rendimiento; DA07 – Persistencia | La información escalafonaria requiere persistencia relacional, integridad y conservación histórica. Redis puede optimizar consultas, pero no debe sustituir a la base de datos principal. | PostgreSQL almacenará la información oficial del sistema y Redis se utilizará únicamente para caché u optimizaciones cuando sea necesario. |
+| ADR-005 | Autenticación con JWT y sesiones revocables, con autorización por roles y permisos | DA01 – Seguridad y control de acceso; DA02 – Trazabilidad | El sistema maneja información personal y laboral sensible y necesita controlar tanto quién accede como qué operaciones puede ejecutar cada usuario. | Se utilizarán JWT asociados a sesiones revocables y se aplicará autorización por roles y permisos efectivos, respetando las restricciones de acceso de los cuatro roles predefinidos. |
+| ADR-006 | Integraciones externas mediante interfaces y adaptadores | DA05 – Disponibilidad ante fallos externos; DA03 – Modularidad y mantenibilidad | RENIEC y la validación tributaria no deben acoplarse al núcleo del negocio ni bloquear las operaciones principales cuando no estén disponibles. | Las integraciones externas se implementarán mediante contratos en Application y adaptadores en Infrastructure, registrando validaciones pendientes cuando corresponda. |
+| ADR-007 | Aplicación web responsiva por funcionalidades | DA08 – Usabilidad; DA03 – Modularidad y mantenibilidad | Los distintos actores necesitan utilizar el sistema desde diferentes tamaños de pantalla sin crear una aplicación móvil separada. | El frontend se organizará por funcionalidades y utilizará componentes responsivos, priorizando escritorio para operaciones administrativas complejas y acceso móvil para funciones del trabajador. |
 
 ## Tecnologías relacionadas
 
-| Componente | Tecnología propuesta |
+| Componente | Tecnología |
 |---|---|
-| Interfaz web | React + TypeScript |
+| Interfaz web | React 18 + TypeScript + Vite |
 | Backend y API REST | ASP.NET Core / .NET 8 |
-| Base de datos | PostgreSQL |
+| Persistencia principal | PostgreSQL |
 | Caché | Redis |
 | Contenedores | Docker y Docker Compose |
-| Balanceador de carga previsto para AWS | AWS Application Load Balancer |
-
